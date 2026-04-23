@@ -1,0 +1,35 @@
+import 'package:flutter/material.dart';
+import 'theme.dart';
+import 'screens/landing_screen.dart';
+import 'screens/signin_screen.dart';
+import 'screens/signup_screen.dart';
+import 'screens/forgot_password_screen.dart';
+import 'screens/welcome_screen.dart';
+import 'screens/home_screen.dart';
+
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(const ELearningApp());
+}
+
+class ELearningApp extends StatelessWidget {
+  const ELearningApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'E-Learning',
+      debugShowCheckedModeBanner: false,
+      theme: AppTheme.theme,
+      initialRoute: '/',
+      routes: {
+        '/': (context) => const LandingScreen(),
+        '/signin': (context) => const SignInScreen(),
+        '/signup': (context) => const SignUpScreen(),
+        '/forgot-password': (context) => const ForgotPasswordScreen(),
+        '/welcome': (context) => const WelcomeScreen(),
+        '/home': (context) => const HomeScreen(),
+      },
+    );
+  }
+}
