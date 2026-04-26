@@ -42,13 +42,17 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       return;
     }
 
-    await Future.delayed(const Duration(milliseconds: 300));
-
+    // Checking the Hardware-Backed database
+    final users = await DatabaseService().getDecryptedUsersForAdmin();
+    
     if (!mounted) return;
-    setState(() {
-      _isLoading = false;
-      _step2 = true; 
-    });
+    setState(() => _isLoading = false);
+
+    if (users.containsKey(email.toLowerCase())) {
+      setState(() => _step2 = true);
+    } else {
+      setState(() => _errorMessage = 'No account found with that email.');
+    }
   }
 
   Future<void> _handleResetPassword() async {
@@ -77,7 +81,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       return;
     }
 
+    // Cryptographic update: Decrypt -> Salt -> Hash -> Encrypt
     final error = await DatabaseService().resetPassword(email, newPass);
+    
     if (!mounted) return;
     setState(() => _isLoading = false);
 
@@ -85,10 +91,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       setState(() => _errorMessage = error);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Password reset successfully!'),
-          backgroundColor: AppColors.primary,
-        ),
+        const SnackBar(content: Text('Password updated successfully!'), backgroundColor: AppColors.primary),
       );
       Navigator.pushNamedAndRemoveUntil(context, '/signin', (route) => false);
     }
@@ -119,59 +122,36 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                             ),
                           ),
                         ),
-
-                        // Illustration
-                        SizedBox(
-                          height: 150,
-                          child: Center(
-                            child: Container(
-                              width: 140,
-                              height: 140,
-                              decoration: BoxDecoration(
-                                color: AppColors.primary.withOpacity(0.07),
-                                shape: BoxShape.circle,
-                              ),
-                              child: const _ForgotIllustration(),
+                        const SizedBox(height: 10),
+                        Center(
+                          child: Container(
+                            width: 130,
+                            height: 130,
+                            decoration: BoxDecoration(
+                              color: AppColors.primary.withOpacity(0.07),
+                              shape: BoxShape.circle,
                             ),
+                            child: _ForgotIllustration(), // Removed 'const'
                           ),
                         ),
-
                         const Padding(
-                          padding: EdgeInsets.only(top: 8, bottom: 4),
-                          child: Text(
-                            'FORGOT PASSWORD',
-                            style: TextStyle(
-                              color: AppColors.primary,
-                              fontWeight: FontWeight.w900,
-                              fontSize: 24,
-                              letterSpacing: 0.5,
-                            ),
-                          ),
+                          padding: EdgeInsets.only(top: 15, bottom: 4),
+                          child: Text('FORGOT PASSWORD', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w900, fontSize: 24)),
                         ),
                         Text(
-                          _step2 ? 'SET NEW PASSWORD' : 'ENTER YOUR EMAIL',
-                          style: const TextStyle(
-                            color: AppColors.primary,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 13,
-                            letterSpacing: 2,
-                          ),
+                          _step2 ? 'SECURE NEW PASSWORD' : 'FIND YOUR ACCOUNT',
+                          style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.w600, fontSize: 12, letterSpacing: 2),
                         ),
 
                         if (_errorMessage != null) ...[
-                          const SizedBox(height: 8),
+                          const SizedBox(height: 12),
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 24),
-                            child: Text(
-                              _errorMessage!,
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(color: AppColors.error, fontSize: 13),
-                            ),
+                            child: Text(_errorMessage!, textAlign: TextAlign.center, style: const TextStyle(color: AppColors.error, fontSize: 13)),
                           ),
                         ],
 
-                        const SizedBox(height: 20),
-
+                        const SizedBox(height: 30),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 24),
                           child: Column(
@@ -179,7 +159,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                               RoundedTextField(
                                 hint: 'Email Address',
                                 controller: _emailController,
-                                suffixIcon: Icons.email_outlined,
+                                suffixIcon: _step2 ? Icons.check_circle : Icons.email_outlined,
+                                enabled: !_step2, // This works now!
                                 keyboardType: TextInputType.emailAddress,
                               ),
                               if (_step2) ...[
@@ -191,7 +172,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                                 ),
                                 const SizedBox(height: 14),
                                 RoundedTextField(
-                                  hint: 'Confirm Password',
+                                  hint: 'Confirm New Password',
                                   controller: _confirmPasswordController,
                                   isPassword: true,
                                 ),
@@ -199,22 +180,18 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                             ],
                           ),
                         ),
-
-                        const Spacer(), // Pushes the footer to the absolute bottom
-
-                        const SizedBox(height: 40),
-
+                        const Spacer(), 
                         Stack(
                           alignment: Alignment.bottomCenter,
                           children: [
                             const NavyWaveBottom(),
                             Container(
-                              padding: const EdgeInsets.fromLTRB(24, 0, 24, 30),
+                              padding: const EdgeInsets.fromLTRB(24, 0, 24, 40),
                               child: _isLoading
                                   ? const CircularProgressIndicator(color: AppColors.accent)
                                   : ElevatedButton(
                                       onPressed: _step2 ? _handleResetPassword : _handleFindAccount,
-                                      child: Text(_step2 ? 'RESET PASSWORD' : 'CONTINUE'),
+                                      child: Text(_step2 ? 'UPDATE PASSWORD' : 'CONTINUE'),
                                     ),
                             ),
                           ],
@@ -242,8 +219,6 @@ class _ForgotPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final yellow = Paint()..color = AppColors.accent;
-    // ignore: unused_local_variable
-    final navy = Paint()..color = AppColors.primary;
     final white = Paint()..color = Colors.white;
     final outline = Paint()..color = AppColors.primary..style = PaintingStyle.stroke..strokeWidth = 2.0;
     final cx = size.width / 2;

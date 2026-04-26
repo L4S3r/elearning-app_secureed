@@ -46,6 +46,7 @@ class RoundedTextField extends StatefulWidget {
   final String? Function(String?)? validator;
   final TextInputType keyboardType;
   final bool hasError;
+  final bool enabled; // ADDED: To support locking the email during reset
 
   const RoundedTextField({
     super.key,
@@ -56,6 +57,7 @@ class RoundedTextField extends StatefulWidget {
     this.validator,
     this.keyboardType = TextInputType.text,
     this.hasError = false,
+    this.enabled = true, // ADDED
   });
 
   @override
@@ -72,8 +74,10 @@ class _RoundedTextFieldState extends State<RoundedTextField> {
       obscureText: widget.isPassword ? _obscure : false,
       keyboardType: widget.keyboardType,
       validator: widget.validator,
-      style: const TextStyle(
-        color: AppColors.textDark,
+      enabled: widget.enabled, // ADDED: Passes status to the internal field
+      style: TextStyle(
+        // Visual feedback: Dim text color if disabled
+        color: widget.enabled ? AppColors.textDark : AppColors.textGray,
         fontSize: 15,
       ),
       decoration: InputDecoration(
@@ -82,9 +86,10 @@ class _RoundedTextFieldState extends State<RoundedTextField> {
           color: widget.hasError ? AppColors.error : AppColors.textGray,
           fontSize: 15,
         ),
-        fillColor: widget.hasError
-            ? AppColors.error.withOpacity(0.05)
-            : AppColors.inputBg,
+        // Visual feedback: Change background color if disabled
+        fillColor: widget.enabled 
+            ? (widget.hasError ? AppColors.error.withOpacity(0.05) : AppColors.inputBg)
+            : AppColors.inputBg.withOpacity(0.5),
         filled: true,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(30),
@@ -98,6 +103,10 @@ class _RoundedTextFieldState extends State<RoundedTextField> {
               ? const BorderSide(color: AppColors.error, width: 1.5)
               : BorderSide.none,
         ),
+        disabledBorder: OutlineInputBorder( // ADDED: Style for the locked state
+          borderRadius: BorderRadius.circular(30),
+          borderSide: BorderSide(color: Colors.grey.withOpacity(0.2)),
+        ),
         suffixIcon: widget.isPassword
             ? IconButton(
                 icon: Icon(
@@ -105,7 +114,9 @@ class _RoundedTextFieldState extends State<RoundedTextField> {
                   color: AppColors.textGray,
                   size: 20,
                 ),
-                onPressed: () => setState(() => _obscure = !_obscure),
+                onPressed: widget.enabled 
+                    ? () => setState(() => _obscure = !_obscure)
+                    : null, // Disable toggle if field is disabled
               )
             : widget.suffixIcon != null
                 ? Icon(widget.suffixIcon, color: AppColors.textGray, size: 20)
