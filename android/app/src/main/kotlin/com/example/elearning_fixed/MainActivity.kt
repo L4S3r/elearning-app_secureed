@@ -1,5 +1,8 @@
 package com.example.elearning_fixed
 
-import io.flutter.embedding.android.FlutterActivity
+// 1. Remove the old FlutterActivity import
+// 2. Add the FragmentActivity import below:
+import io.flutter.embedding.android.FlutterFragmentActivity
 
-class MainActivity : FlutterActivity()
+class MainActivity: FlutterFragmentActivity() {
+}

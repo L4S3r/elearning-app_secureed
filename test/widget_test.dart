@@ -8,6 +8,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+// ignore: depend_on_referenced_packages
 import 'package:elearning_fixed/main.dart';
 
 void main() {

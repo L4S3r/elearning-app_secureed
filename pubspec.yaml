@@ -1,6 +1,5 @@
-name: SecureED
+name: secure_ed
 description: E-Learning Mobile Application
-
 publish_to: 'none'
 version: 1.0.1+2
 
@@ -8,20 +7,31 @@ environment:
   sdk: '>=3.0.0 <4.0.0'
 
 dependencies:
-  flutter_secure_storage: ^9.0.0
-  encrypt: ^5.0.3
   flutter:
     sdk: flutter
+  flutter_secure_storage: ^9.0.0
+  encrypt: ^5.0.3 
   crypto: ^3.0.3
   shared_preferences: ^2.2.2
   cupertino_icons: ^1.0.6
+  local_auth: ^2.3.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^3.0.0
+  flutter_launcher_icons: "^0.13.1" # Move this to dev_dependencies
+
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/icon/app_icon.webp"
+  adaptive_icon_background: "#001B3D"
+  adaptive_icon_foreground: "assets/icon/app_icon.webp"
 
 flutter:
   uses-material-design: true
   assets:
     - assets/images/
+    - assets/icon/ 
