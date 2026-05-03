@@ -47,7 +47,7 @@ class WelcomeScreen extends StatelessWidget {
               const SizedBox(height: 48),
               ElevatedButton(
                 onPressed: () =>
-                    Navigator.pushReplacementNamed(context, '/home'),
+                    Navigator.pushReplacementNamed(context, '/'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.accent,
                   foregroundColor: AppColors.primary,

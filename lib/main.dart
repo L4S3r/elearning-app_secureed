@@ -21,7 +21,7 @@
         title: 'E-Learning',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.theme,
-        initialRoute: '/',
+        initialRoute: '/welcome',
         routes: {
           '/': (context) => const LandingScreen(),
           // ignore: prefer_const_constructors
